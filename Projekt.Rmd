@@ -1,0 +1,41 @@
+---
+title: "Analiza danych - Projekt v.0.1"
+author: "Kamil Kukiełka, Michał Zakielarz, Klaudia Kopeć"
+date: "2024-04-29"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Zaczytanie danych i ich przygotowanie
+```{r message=TRUE, warning=FALSE, echo=FALSE}
+setwd("C:/Users/kkuki/Desktop/wojcik")
+options(digits=12)
+raw_data <- read.csv("dane.csv",stringsAsFactors=FALSE)
+```
+## Zbiór 1
+```{r,echo=FALSE}
+df1 <- data.frame(raw_data$Period,raw_data$Revenue)
+colnames(df1)<-c("Period","Revenue")
+head(df1, n=12)
+```
+
+## Zbiór 2
+```{r,echo=FALSE}
+df1 <- data.frame(raw_data$Period,raw_data$Sales_quantity)
+colnames(df1)<-c("Period","Sales_quantity")
+head(df1, n=12)
+```
+## Zbiór 3
+```{r,echo=FALSE}
+df1 <- data.frame(raw_data$Period,raw_data$Average_cost)
+colnames(df1)<-c("Period","Average_cost")
+head(df1, n=12)
+```
+
+## Zbiór 4
+```{r,echo=FALSE}
+df1 <- data.frame(raw_data$Period,raw_data$The_average_annual_payroll_of_the_region)
+colnames(df1)<-c("Period","Average_annual_payroll_of_regiion")
+head(df1, n=12)
+```
