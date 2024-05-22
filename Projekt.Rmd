@@ -63,6 +63,7 @@ Zawiera on kwartalne dane o długu publicznym USA (podany w milionach USD)
 z3df1 <- data.frame(raw_data3$date,raw_data3$value)
 colnames(z3df1) <- c("Data","Dług")
 head(z3df1, n=12)
+tail(z3df1)
 ```
 # Zamiana na szereg czasowy
 Teraz kiedy mamy już nasze dane musimy je zamienić na szeregi czasowe
@@ -73,5 +74,61 @@ z1ts3 <- ts(z1df3$Average_cost,start=c(2015,1),frequency = 12)
 z1ts4 <- ts(z1df4$Average_annual_payroll_of_regiion,start=c(2015,1),frequency = 12)
 z2ts1 <- ts(z2df1$Temperatura, start = c(2016,1,1), frequency = 365)
 z3ts1 <- ts(z3df1$Dług, start = c(1966,1), frequency = 4)
+```
+##LABY
+
+```{r}
+
+whitenoise <- rnorm(120,0,1)
+random_walk <-cumsum(whitenoise)
+wts<-ts(whitenoise)
+rwts<-ts(random_walk)
+```
+
+```{r}
+z1ts1
+```
+WYKRESY
+
+```{r}
+hist(whitenoise)
+density(whitenoise)
+plot(density(whitenoise))
+polygon(density(whitenoise)$x,density(whitenoise)$y,col="red")
+boxplot(whitenoise)
+qqnorm(whitenoise)
+qqline(whitenoise, col="green")
+```
+## AUTOKORELACJE
+```{r}
+plot(wts)
+acf(wts,lag.max = 20)
+pacf(whitenoise)
+ccf(x=whitenoise,y=random_walk,lag.max = 20)
+```
+## ZADANKA
+```{r}
+hist(z1ts1,col = "cyan")
+plot(density(z1ts1),col="magenta")
+```
+No taki prawie średnio rozkład normalny
+
+```{r}
+boxplot(z1ts1)
+```
+```{r}
+acf(z1ts1)
+pacf(z1ts1)
+```
+
+```{r}
+ccf(x=z1ts1,y=z1ts2,col="red")
+```
+```{r}
+#ts end start itd
+window
+
+diff()
+
 ```
 
