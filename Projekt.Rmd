@@ -8,34 +8,70 @@ output:
 ---
 
 # Zaczytanie danych i ich przygotowanie
+W tym projekcie będziemy korzystać z kilku zestawów danych, tak aby wykazać, że pomimo danych z różnych dziedzin ich predyckja jest w jakimś sposób możliwa
 ```{r message=TRUE, warning=FALSE, echo=FALSE}
-setwd("C:/Users/kkuki/Desktop/wojcik")
+setwd("C:/Users/kkuki/Desktop/Projects/R/Szeregi_czasowe")
 options(digits=12)
-raw_data <- read.csv("dane.csv",stringsAsFactors=FALSE)
+raw_data1 <- read.csv("dane_firmy.csv",stringsAsFactors=FALSE)
+raw_data2 <- read.csv("rainfall.csv",stringsAsFactors = FALSE)
+raw_data3 <- read.csv("public_debt.csv",stringsAsFactors = FALSE)
 ```
+## Zestaw 1
+Nasz pierwszy zestaw dotyczy różnych wskaźników pewnego przedsiębiorstwa, które zmienieniają się w czasie. Dane te były aktualizowane co miesiąc i obejmują zakres od 01.01.2015 do 01.02.2020
+Teraz przedstawimy fragment naszych danych aby wiedzieć z czym mamy doczynienia.
 ## Zbiór 1
+Zawiera on przychodów naszego przedsiębiorstwa.
 ```{r,echo=FALSE}
-df1 <- data.frame(raw_data$Period,raw_data$Revenue)
-colnames(df1)<-c("Period","Revenue")
-head(df1, n=12)
+z1df1 <- data.frame(raw_data1$Period,raw_data1$Revenue)
+colnames(z1df1)<-c("Period","Revenue")
+head(z1df1, n=12)
 ```
 
 ## Zbiór 2
+Zawiera ilość sprzedarzy w naszej firmie
 ```{r,echo=FALSE}
-df1 <- data.frame(raw_data$Period,raw_data$Sales_quantity)
-colnames(df1)<-c("Period","Sales_quantity")
-head(df1, n=12)
+z1df2 <- data.frame(raw_data1$Period,raw_data1$Sales_quantity)
+colnames(z1df2)<-c("Period","Sales_quantity")
+head(z1df2, n=12)
 ```
 ## Zbiór 3
+Zawiera średni koszt produkcji
 ```{r,echo=FALSE}
-df1 <- data.frame(raw_data$Period,raw_data$Average_cost)
-colnames(df1)<-c("Period","Average_cost")
-head(df1, n=12)
+z1df3 <- data.frame(raw_data1$Period,raw_data1$Average_cost)
+colnames(z1df3)<-c("Period","Average_cost")
+head(z1df3, n=12)
 ```
 
 ## Zbiór 4
+Zawiera informację o średniej liczbie pracowników w regionie (rocznie)
 ```{r,echo=FALSE}
-df1 <- data.frame(raw_data$Period,raw_data$The_average_annual_payroll_of_the_region)
-colnames(df1)<-c("Period","Average_annual_payroll_of_regiion")
-head(df1, n=12)
+z1df4 <- data.frame(raw_data1$Period,raw_data1$The_average_annual_payroll_of_the_region)
+colnames(z1df4)<-c("Period","Average_annual_payroll_of_regiion")
+head(z1df4, n=12)
 ```
+
+## Zbiór 2
+Obejmuje śrendią dzienną temperaturę w Mumbaiu. Nasz zbiór zawiera więcej danych takich jak wilgoć, prędkość czy kierunek wiartu, jednak my skupimy się tylok na temperaturze
+```{r, echo=FALSE}
+z2df1 <- data.frame(raw_data2$datetime,raw_data2$temp)
+colnames(z2df1) <- c("Data","Temperatura")
+head(z2df1, n=12)
+```
+## Zbiór 3
+Zawiera on kwartalne dane o długu publicznym USA (podany w milionach USD)
+```{r, echo=FALSE}
+z3df1 <- data.frame(raw_data3$date,raw_data3$value)
+colnames(z3df1) <- c("Data","Dług")
+head(z3df1, n=12)
+```
+# Zamiana na szereg czasowy
+Teraz kiedy mamy już nasze dane musimy je zamienić na szeregi czasowe
+```{r}
+z1ts1 <- ts(z1df1$Revenue,start=c(2015,1),frequency = 12)
+z1ts2 <- ts(z1df2$Sales_quantity,start=c(2015,1),frequency = 12)
+z1ts3 <- ts(z1df3$Average_cost,start=c(2015,1),frequency = 12)
+z1ts4 <- ts(z1df4$Average_annual_payroll_of_regiion,start=c(2015,1),frequency = 12)
+z2ts1 <- ts(z2df1$Temperatura, start = c(2016,1,1), frequency = 365)
+z3ts1 <- ts(z3df1$Dług, start = c(1966,1), frequency = 4)
+```
+
