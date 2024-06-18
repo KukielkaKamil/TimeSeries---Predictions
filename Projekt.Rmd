@@ -6,6 +6,15 @@ output:
   pdf_document: default
   html_document: default
 ---
+```{r}
+library(forecast)
+library(dplyr)
+library(urca)
+library(ggplot2)
+library(lmtest)
+library(skedastic)
+```
+
 
 # Zaczytanie danych i ich przygotowanie
 W tym projekcie będziemy korzystać z kilku zestawów danych, tak aby wykazać, że pomimo danych z różnych dziedzin ich predyckja jest w jakimś sposób możliwa
@@ -75,3 +84,96 @@ z2ts1 <- ts(z2df1$Temperatura, start = c(2016,1,1), frequency = 365)
 z3ts1 <- ts(z3df1$Dług, start = c(1966,1), frequency = 4)
 ```
 
+
+#Przeprowadzenie testów
+## Autokorelacja
+### Dla zbioru 1
+Autokorelacja przychodów przedsiębiorstwa
+```{r}
+acf(z1ts1)
+```
+Autokorelacja cząstkowa? przychodów przedsiębiorstwa
+```{r}
+pacf(z1ts1)
+```
+i tak dla pozostałych
+## Dla zbioru 2
+
+# Test na heteroskedastyczność
+Aby określić heteroskedastyczność szeregu należy najpier stowrzyć model liniowy z naszych szeregów czasowych, a następnie przeprowadzić test Breuscha-Pagana
+## Dla zbioru 1
+
+heteroskedastyczność przychodów przedsiębiorstwa
+```{r}
+df=data.frame(time=1:length(z1ts1),z1ts1)
+z1lm1<-lm(z1ts1~time,data = df)
+plot(z1lm1$residuals)
+ bptest(z1lm1)
+```
+Z tego wynika ....
+
+#Test na stacjonarność szergu
+
+## Dla zbioru 1
+```{r}
+urca::ur.kpss(z1ts1) %>% summary() #niestacjonarny
+diff(z1ts1) %>% urca::ur.kpss() %>% summary() # stacjonarny
+```
+#Tworzenie modelu
+Bazując na naszych wcześniejszych danych musimy teraz dobrać odpowiednie parametry naszego modelu. Jako iż będziemy korzystać z modelu Arima potrzebujemy wartośći parametrów p,d,q.
+```{r}
+plot(z1ts1) #roboczo
+```
+Aby wyznaczyć parametr p patrzymy na nasze korelogramy.
+```{r}
+acf(z1ts1)
+pacf(z1ts1)
+```
+Możemy na nich zauważyć, że nie występuje jednoznaczna autokorelacja. W takim wypadku możemy nasze dane zróżnicować
+```{r}
+acf(diff(z1ts1,lag = 1))
+pacf(diff(z1ts1,lag = 12))
+```
+Na podstawie powyższych wykresów mając orientację jakie wartości możemy wrzucić do modelu testujemy kilka opcji
+
+```{r}
+print("Wersja 1")
+Arima(y=z1ts1, order = c(3,1,3),lambda = NULL)
+print("Wersja 2")
+Arima(y=z1ts1,lambda = NULL,seasonal = c(3,1,3))
+print("Wersja 3")
+Arima(y=z1ts1, order = c(0,1,0),lambda = NULL)
+print("Wersja 4")
+test <- Arima(y=z1ts1,lambda = NULL,seasonal = c(1,1,1))
+print("Wersja 5")
+Arima(y=z1ts1, order = c(0,1,0),lambda = "auto")
+print("Wersja 6")
+z1tst1_best_model <- Arima(y=z1ts1,lambda = "auto",seasonal = c(0,1,0))
+z1tst1_best_model
+```
+Z pośród stoworznych modeli wybraliśmy najlepszy, teraz spróbujemy stowrzyć model AutoArima i spróbujemy go porównać z obecnie najlepszym
+```{r}
+auto.arima(z1ts1,d=1,max.p = 5,max.q =5,max.d = 5,seasonal = TRUE)
+```
+Podsumowując nasz wcześniejszy model jest lepszy :)
+# Predykcja danych
+Teraz mając nasze modele możemy dokonać predykcji
+## Zbiór 1
+Dla naszego zbioru spróbujemy dokonać predykcji na następny rok
+###Predykcja przychodów przedsiębiorstwa
+```{r}
+forecast_valuesz11 <-forecast(z1tst1_best_model,h=24)
+autoplot(z1ts1, series="Original Data") +
+  autolayer(forecast_values, series="Forecast", PI=FALSE) +
+  ggtitle("Time Series and ARIMA Forecast") +
+  xlab("Time") +
+  ylab("Value") +
+  theme_minimal() +
+  scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
+```
+#Dekomozycja szeregu
+```{r}
+decomposedz11 <- decompose(z1ts1)
+plot(decomposedz11)
+```
+Na podstawie powyższych obserwacji możemy stwierdzić, że szereg ma widoczny trend, jest sezonowy oraz występują odchylenia losowe.
