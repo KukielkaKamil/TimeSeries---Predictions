@@ -1,7 +1,7 @@
 ---
 title: "Analiza danych - Projekt v.0.1"
 author: "Kamil Kukiełka, Michał Zakielarz, Klaudia Kopeć"
-date: "2024-04-29"
+date: "2024-06-20"
 output:
   pdf_document: default
   html_document: default
@@ -19,16 +19,17 @@ library(skedastic)
 # Zaczytanie danych i ich przygotowanie
 W tym projekcie będziemy korzystać z kilku zestawów danych, tak aby wykazać, że pomimo danych z różnych dziedzin ich predyckja jest w jakimś sposób możliwa
 ```{r message=TRUE, warning=FALSE, echo=FALSE}
-setwd("C:/Users/kkuki/Desktop/Projects/R/Szeregi_czasowe")
+setwd("C:/Users/klaud/Desktop/projekt R/szeregi_czasowe")
 options(digits=12)
 raw_data1 <- read.csv("dane_firmy.csv",stringsAsFactors=FALSE)
 raw_data2 <- read.csv("rainfall.csv",stringsAsFactors = FALSE)
 raw_data3 <- read.csv("public_debt.csv",stringsAsFactors = FALSE)
+#raw_data4 <- read.csv("dane.csv",stringsAsFactors = FALSE)
 ```
-## Zestaw 1
+## Zbiór 1
 Nasz pierwszy zestaw dotyczy różnych wskaźników pewnego przedsiębiorstwa, które zmienieniają się w czasie. Dane te były aktualizowane co miesiąc i obejmują zakres od 01.01.2015 do 01.02.2020
 Teraz przedstawimy fragment naszych danych aby wiedzieć z czym mamy doczynienia.
-## Zbiór 1
+## Zestaw 1
 Zawiera on przychodów naszego przedsiębiorstwa.
 ```{r,echo=FALSE}
 z1df1 <- data.frame(raw_data1$Period,raw_data1$Revenue)
@@ -36,23 +37,23 @@ colnames(z1df1)<-c("Period","Revenue")
 head(z1df1, n=12)
 ```
 
-## Zbiór 2
-Zawiera ilość sprzedarzy w naszej firmie
+## Zestaw 2
+Zawiera ilość sprzedarzy w naszej firmie.
 ```{r,echo=FALSE}
 z1df2 <- data.frame(raw_data1$Period,raw_data1$Sales_quantity)
 colnames(z1df2)<-c("Period","Sales_quantity")
 head(z1df2, n=12)
 ```
-## Zbiór 3
-Zawiera średni koszt produkcji
+## Zestaw 3
+Zawiera średni koszt produkcji w naszej firmie.
 ```{r,echo=FALSE}
 z1df3 <- data.frame(raw_data1$Period,raw_data1$Average_cost)
 colnames(z1df3)<-c("Period","Average_cost")
 head(z1df3, n=12)
 ```
 
-## Zbiór 4
-Zawiera informację o średniej liczbie pracowników w regionie (rocznie)
+## Zestaw 4
+Zawiera informację o średniej liczbie pracowników w regionie (rocznie).
 ```{r,echo=FALSE}
 z1df4 <- data.frame(raw_data1$Period,raw_data1$The_average_annual_payroll_of_the_region)
 colnames(z1df4)<-c("Period","Average_annual_payroll_of_regiion")
@@ -60,21 +61,21 @@ head(z1df4, n=12)
 ```
 
 ## Zbiór 2
-Obejmuje śrendią dzienną temperaturę w Mumbaiu. Nasz zbiór zawiera więcej danych takich jak wilgoć, prędkość czy kierunek wiartu, jednak my skupimy się tylok na temperaturze
+Obejmuje średnią dzienną temperaturę w Mumbaiu. Nasz zbiór zawiera więcej danych takich jak wilgoć, prędkość czy kierunek wiartu, jednak my skupimy się tylok na temperaturze.
 ```{r, echo=FALSE}
 z2df1 <- data.frame(raw_data2$datetime,raw_data2$temp)
 colnames(z2df1) <- c("Data","Temperatura")
 head(z2df1, n=12)
 ```
 ## Zbiór 3
-Zawiera on kwartalne dane o długu publicznym USA (podany w milionach USD)
+Zawiera on kwartalne dane o długu publicznym USA (podany w milionach USD).
 ```{r, echo=FALSE}
 z3df1 <- data.frame(raw_data3$date,raw_data3$value)
 colnames(z3df1) <- c("Data","Dług")
 head(z3df1, n=12)
 ```
 # Zamiana na szereg czasowy
-Teraz kiedy mamy już nasze dane musimy je zamienić na szeregi czasowe
+Teraz kiedy mamy już nasze dane musimy je zamienić na szeregi czasowe.
 ```{r}
 z1ts1 <- ts(z1df1$Revenue,start=c(2015,1),frequency = 12)
 z1ts2 <- ts(z1df2$Sales_quantity,start=c(2015,1),frequency = 12)
@@ -85,41 +86,147 @@ z3ts1 <- ts(z3df1$Dług, start = c(1966,1), frequency = 4)
 ```
 
 
-#Przeprowadzenie testów
+# Przeprowadzenie testów
 ## Autokorelacja
-### Dla zbioru 1
-Autokorelacja przychodów przedsiębiorstwa
+## Zbiór 1
+### Dla zestawu 1
+Autokorelacja przychodów przedsiębiorstwa.
 ```{r}
 acf(z1ts1)
 ```
-Autokorelacja cząstkowa? przychodów przedsiębiorstwa
+Autokorelacja cząstkowa przychodów przedsiębiorstwa.
 ```{r}
 pacf(z1ts1)
 ```
-i tak dla pozostałych
+### Dla zestawu 2
+Autokorelacja ilości sprzedarzy w firmie.
+```{r}
+acf(z1ts2)
+```
+
+Autokorelacja cząstkowa ilości sprzedarzy w firmie.
+```{r}
+pacf(z1ts2)
+```
+### Dla zestawu 3
+Autokorelacja średniego kosztu produkcji w firmie.
+```{r}
+acf(z1ts3)
+```
+
+Autokorelacja średniego kosztu produkcji w firmie.
+```{r}
+pacf(z1ts3)
+```
+
+### Dla zestawu 4
+Autokorelacja informacji o średniej liczbie pracowników w regionie.
+```{r}
+acf(z1ts4)
+```
+
+Autokorelacja informacji o średniej liczbie pracowników w regionie.
+```{r}
+pacf(z1ts4)
+```
+
 ## Dla zbioru 2
+Autokorelacja średniej dziennej temperatury w Mumbaiu.
+```{r}
+acf(z2ts1)
+```
+
+Autokorelacja średniej dziennej temperatury w Mumbaiu.
+```{r}
+pacf(z2ts1)
+```
+
+## Dla zbioru 3
+Autokorelacja kwartalnych danych o długu publicznym USA.
+```{r}
+acf(z3ts1)
+```
+
+Autokorelacja kwartalnych danych o długu publicznym USA.
+```{r}
+pacf(z3ts1)
+```
 
 # Test na heteroskedastyczność
-Aby określić heteroskedastyczność szeregu należy najpier stowrzyć model liniowy z naszych szeregów czasowych, a następnie przeprowadzić test Breuscha-Pagana
-## Dla zbioru 1
+Aby określić heteroskedastyczność szeregu, należy najpierw stworzyć model liniowy z naszych szeregów czasowych, a następnie przeprowadzić test Breuscha-Pagana.
 
-heteroskedastyczność przychodów przedsiębiorstwa
+### Zbiór 1
+## Dla zestawu 1
+Heteroskedastyczność przychodów przedsiębiorstwa.
 ```{r}
 df=data.frame(time=1:length(z1ts1),z1ts1)
 z1lm1<-lm(z1ts1~time,data = df)
 plot(z1lm1$residuals)
  bptest(z1lm1)
 ```
-Z tego wynika ....
+Z powyższych testów wynika, że wartość p jest mniejsza niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności.
 
-#Test na stacjonarność szergu
+## Dla zestawu 2
+Heteroskedastyczność ilości sprzedarzy w firmie.
+```{r}
+df=data.frame(time=1:length(z1ts2),z1ts2)
+z1lm2<-lm(z1ts2~time,data = df)
+plot(z1lm2$residuals)
+ bptest(z1lm2)
+```
+## Dla zestawu 3
+Heteroskedastyczność średniego kosztu produkcji w firmie.
+```{r}
+df=data.frame(time=1:length(z1ts3),z1ts3)
+z1lm3<-lm(z1ts3~time,data = df)
+plot(z1lm3$residuals)
+ bptest(z1lm3)
+```
+
+Miejsce na wnioski....
+
+## Dla zestawu 4
+Heteroskedastyczność informacji o średniej liczbie pracowników w regionie.
+```{r}
+df=data.frame(time=1:length(z1ts4),z1ts4)
+z1lm4<-lm(z1ts4~time,data = df)
+plot(z1lm4$residuals)
+ bptest(z1lm4)
+```
+
+Miejsce na wnioski....
+
+### Zbioru 2
+Heteroskedastyczność średniej dziennej temperatury w Mumbaiu.
+```{r}
+df=data.frame(time=1:length(z2ts1),z2ts1)
+z2lm1<-lm(z2ts1~time,data = df)
+plot(z2lm1$residuals)
+ bptest(z2lm1)
+```
+
+Miejsce na wnioski....
+
+### Zbioru 3
+Heteroskedastyczność kwartalnych danych o długu publicznym USA.
+```{r}
+df=data.frame(time=1:length(z3ts1),z3ts1)
+z3lm1<-lm(z3ts1~time,data = df)
+plot(z3lm1$residuals)
+ bptest(z3lm1)
+```
+
+Miejsce na wnioski....
+
+
+# Test na stacjonarność szergu
 
 ## Dla zbioru 1
 ```{r}
 urca::ur.kpss(z1ts1) %>% summary() #niestacjonarny
 diff(z1ts1) %>% urca::ur.kpss() %>% summary() # stacjonarny
 ```
-#Tworzenie modelu
+# Tworzenie modelu
 Bazując na naszych wcześniejszych danych musimy teraz dobrać odpowiednie parametry naszego modelu. Jako iż będziemy korzystać z modelu Arima potrzebujemy wartośći parametrów p,d,q.
 ```{r}
 plot(z1ts1) #roboczo
@@ -160,18 +267,18 @@ Podsumowując nasz wcześniejszy model jest lepszy :)
 Teraz mając nasze modele możemy dokonać predykcji
 ## Zbiór 1
 Dla naszego zbioru spróbujemy dokonać predykcji na następny rok
-###Predykcja przychodów przedsiębiorstwa
+### Predykcja przychodów przedsiębiorstwa
 ```{r}
 forecast_valuesz11 <-forecast(z1tst1_best_model,h=24)
 autoplot(z1ts1, series="Original Data") +
-  autolayer(forecast_values, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz11, series="Forecast", PI=FALSE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
   theme_minimal() +
   scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
 ```
-#Dekomozycja szeregu
+# Dekomozycja szeregu
 ```{r}
 decomposedz11 <- decompose(z1ts1)
 plot(decomposedz11)
