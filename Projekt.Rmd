@@ -86,7 +86,9 @@ z3ts1 <- ts(z3df1$Dług, start = c(1966,1), frequency = 4)
 
 
 #Przeprowadzenie testów
+
 ## Autokorelacja
+
 ### Dla zbioru 1
 Autokorelacja przychodów przedsiębiorstwa
 ```{r}
@@ -164,7 +166,7 @@ Dla naszego zbioru spróbujemy dokonać predykcji na następny rok
 ```{r}
 forecast_valuesz11 <-forecast(z1tst1_best_model,h=24)
 autoplot(z1ts1, series="Original Data") +
-  autolayer(forecast_values, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz11, series="Forecast", PI=FALSE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
