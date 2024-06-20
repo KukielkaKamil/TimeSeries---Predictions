@@ -1,3 +1,4 @@
+---
 title: "Analiza danych - Projekt v.0.1"
 author: "Kamil Kukiełka, Michał Zakielarz, Klaudia Kopeć"
 date: "2024-06-20"
@@ -5,7 +6,7 @@ output:
   pdf_document: default
   html_document: default
 ---
-```{r}
+```{r,echo=FALSE,message=FALSE,warning=FALSE}
 library(forecast)
 library(dplyr)
 library(urca)
@@ -18,17 +19,19 @@ library(skedastic)
 # Zaczytanie danych i ich przygotowanie
 W tym projekcie będziemy korzystać z kilku zestawów danych, tak aby wykazać, że pomimo danych z różnych dziedzin ich predyckja jest w jakimś sposób możliwa
 ```{r message=TRUE, warning=FALSE, echo=FALSE}
-setwd("C:/Users/klaud/Desktop/projekt R/szeregi_czasowe")
+setwd("C:/Users/kkuki/Desktop/Projects/R/Szeregi_czasowe")
 options(digits=12)
 raw_data1 <- read.csv("dane_firmy.csv",stringsAsFactors=FALSE)
 raw_data2 <- read.csv("rainfall.csv",stringsAsFactors = FALSE)
 raw_data3 <- read.csv("public_debt.csv",stringsAsFactors = FALSE)
-#raw_data4 <- read.csv("dane.csv",stringsAsFactors = FALSE)
 ```
 ## Zbiór 1
+
 Nasz pierwszy zestaw dotyczy różnych wskaźników pewnego przedsiębiorstwa, które zmienieniają się w czasie. Dane te były aktualizowane co miesiąc i obejmują zakres od 01.01.2015 do 01.02.2020
 Teraz przedstawimy fragment naszych danych aby wiedzieć z czym mamy doczynienia.
-## Zestaw 1
+
+### Zestaw 1
+
 Zawiera on przychodów naszego przedsiębiorstwa.
 ```{r,echo=FALSE}
 z1df1 <- data.frame(raw_data1$Period,raw_data1$Revenue)
@@ -36,14 +39,14 @@ colnames(z1df1)<-c("Period","Revenue")
 head(z1df1, n=12)
 ```
 
-## Zestaw 2
-Zawiera ilość sprzedarzy w naszej firmie.
+### Zestaw 2
+Zawiera ilość sprzedaży w naszej firmie.
 ```{r,echo=FALSE}
 z1df2 <- data.frame(raw_data1$Period,raw_data1$Sales_quantity)
 colnames(z1df2)<-c("Period","Sales_quantity")
 head(z1df2, n=12)
 ```
-## Zestaw 3
+### Zestaw 3
 Zawiera średni koszt produkcji w naszej firmie.
 ```{r,echo=FALSE}
 z1df3 <- data.frame(raw_data1$Period,raw_data1$Average_cost)
@@ -51,7 +54,7 @@ colnames(z1df3)<-c("Period","Average_cost")
 head(z1df3, n=12)
 ```
 
-## Zestaw 4
+### Zestaw 4
 Zawiera informację o średniej liczbie pracowników w regionie (rocznie).
 ```{r,echo=FALSE}
 z1df4 <- data.frame(raw_data1$Period,raw_data1$The_average_annual_payroll_of_the_region)
@@ -66,7 +69,7 @@ z2df1 <- data.frame(raw_data2$datetime,raw_data2$temp)
 colnames(z2df1) <- c("Data","Temperatura")
 head(z2df1, n=12)
 ```
-## Zbiór 3
+### Zbiór 3
 Zawiera on kwartalne dane o długu publicznym USA (podany w milionach USD).
 ```{r, echo=FALSE}
 z3df1 <- data.frame(raw_data3$date,raw_data3$value)
@@ -84,10 +87,47 @@ z2ts1 <- ts(z2df1$Temperatura, start = c(2016,1,1), frequency = 365)
 z3ts1 <- ts(z3df1$Dług, start = c(1966,1), frequency = 4)
 ```
 
+Mając nasze dane w tej formie możemy narysować wykresy, aby zobaczyć jak wyglądają.
+
+Zbiór 1 zestaw 1
+
+```{r}
+plot(z1ts1)
+```
+Zbiór 1 zestaw 2
+
+```{r}
+plot(z1ts2)
+```
+Zbiór 1 zestaw 3
+```{r}
+plot(z1ts3)
+```
+Zbiór 1 zestaw 4
+
+```{r}
+plot(z1ts4)
+```
+Zbiór 2
+
+```{r}
+plot(z2ts1)
+```
+Zbiór 3
+
+```{r}
+plot(z3ts1)
+```
+
+
 
 # Przeprowadzenie testów
+
 ## Autokorelacja
+Przeprowadzimy teraz test na autokrelacje, za pomocą korelogramów oraz testu Durbina-Watsona
+
 ## Zbiór 1
+
 ### Dla zestawu 1
 Autokorelacja przychodów przedsiębiorstwa.
 ```{r}
@@ -97,6 +137,14 @@ Autokorelacja cząstkowa przychodów przedsiębiorstwa.
 ```{r}
 pacf(z1ts1)
 ```
+Test Durbina-Watsona
+```{r}
+df=data.frame(time=1:length(z1ts1),z1ts1)
+z1lm1<-lm(z1ts1~time,data = df)
+dwtest(z1lm1,order.by = NULL)
+```
+Z powyżej wykonanych testów wynika, że mamy doczynienia z minimalną negatywną autokorelacją, jednak nie jest ona istotna statystycznie.
+
 ### Dla zestawu 2
 Autokorelacja ilości sprzedarzy w firmie.
 ```{r}
@@ -107,6 +155,14 @@ Autokorelacja cząstkowa ilości sprzedarzy w firmie.
 ```{r}
 pacf(z1ts2)
 ```
+Test Durbina-Watsona
+```{r}
+df=data.frame(time=1:length(z1ts2),z1ts2)
+z1lm2<-lm(z1ts2~time,data = df)
+dwtest(z1lm2)
+```
+Z powyżej wykonanych testów wynika, że mamy doczynienia z minimalną negatywną autokorelacją, jednak nie jest ona istotna statystycznie.
+
 ### Dla zestawu 3
 Autokorelacja średniego kosztu produkcji w firmie.
 ```{r}
@@ -117,6 +173,15 @@ Autokorelacja średniego kosztu produkcji w firmie.
 ```{r}
 pacf(z1ts3)
 ```
+
+Test Durbina-Watsona
+```{r}
+df=data.frame(time=1:length(z1ts3),z1ts3)
+z1lm3<-lm(z1ts3~time,data = df)
+dwtest(z1lm3)
+```
+Z powyżej wykonanych testów wynika, że mamy doczynienia z minimalną pozytywną autokorelacją i jest ona istotna statystycznie.
+
 
 ### Dla zestawu 4
 Autokorelacja informacji o średniej liczbie pracowników w regionie.
@@ -129,6 +194,14 @@ Autokorelacja informacji o średniej liczbie pracowników w regionie.
 pacf(z1ts4)
 ```
 
+Test Durbina-Watsona
+```{r}
+df=data.frame(time=1:length(z1ts4),z1ts4)
+z1lm4<-lm(z1ts4~time,data = df)
+dwtest(z1lm4)
+```
+Z powyżej wykonanych testów wynika, że mamy doczynienia z silną pozytywną autokorelacją, która jest istotna statystycznie
+
 ## Dla zbioru 2
 Autokorelacja średniej dziennej temperatury w Mumbaiu.
 ```{r}
@@ -140,6 +213,13 @@ Autokorelacja średniej dziennej temperatury w Mumbaiu.
 pacf(z2ts1)
 ```
 
+Test Durbina-Watsona
+```{r}
+df=data.frame(time=1:length(z2ts1),z2ts1)
+z2lm1<-lm(z2ts1~time,data = df)
+dwtest(z2lm1)
+```
+Z powyżej wykonanych testów wynika, że mamy doczynienia z silną pozywyną autokorelacją, która jest istotna statystycznie
 ## Dla zbioru 3
 Autokorelacja kwartalnych danych o długu publicznym USA.
 ```{r}
@@ -151,28 +231,35 @@ Autokorelacja kwartalnych danych o długu publicznym USA.
 pacf(z3ts1)
 ```
 
+Test Durbina-Watsona
+```{r}
+df=data.frame(time=1:length(z3ts1),z3ts1)
+z3lm1<-lm(z3ts1~time,data = df)
+dwtest(z3lm1)
+```
+Z powyżej wykonanych testów wynika, że mamy doczynienia z silną pozywyną autokorelacją, która jest istotna statystycznie
+
 # Test na heteroskedastyczność
 Aby określić heteroskedastyczność szeregu, należy najpierw stworzyć model liniowy z naszych szeregów czasowych, a następnie przeprowadzić test Breuscha-Pagana.
 
 ### Zbiór 1
+
 ## Dla zestawu 1
 Heteroskedastyczność przychodów przedsiębiorstwa.
 ```{r}
-df=data.frame(time=1:length(z1ts1),z1ts1)
-z1lm1<-lm(z1ts1~time,data = df)
 plot(z1lm1$residuals)
- bptest(z1lm1)
+bptest(z1lm1)
 ```
-Z powyższych testów wynika, że wartość p jest mniejsza niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności.
+Wykonując powyższy test wynika, że wartość p jest mniejsze niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, *nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności*.
 
 ## Dla zestawu 2
 Heteroskedastyczność ilości sprzedarzy w firmie.
 ```{r}
-df=data.frame(time=1:length(z1ts2),z1ts2)
-z1lm2<-lm(z1ts2~time,data = df)
 plot(z1lm2$residuals)
  bptest(z1lm2)
 ```
+Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, *nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności.*
+
 ## Dla zestawu 3
 Heteroskedastyczność średniego kosztu produkcji w firmie.
 ```{r}
@@ -182,7 +269,7 @@ plot(z1lm3$residuals)
  bptest(z1lm3)
 ```
 
-Miejsce na wnioski....
+Wykonując powyższy test wynika, że wartość p jest mniejsze niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, *nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności*.
 
 ## Dla zestawu 4
 Heteroskedastyczność informacji o średniej liczbie pracowników w regionie.
@@ -193,7 +280,7 @@ plot(z1lm4$residuals)
  bptest(z1lm4)
 ```
 
-Miejsce na wnioski....
+Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co prowadzi do odrzucenia hipotezy zerowej. W konsekwencji, *możemy stwierdzić, że występuje heteroshedastyczność*.
 
 ### Zbioru 2
 Heteroskedastyczność średniej dziennej temperatury w Mumbaiu.
@@ -204,7 +291,7 @@ plot(z2lm1$residuals)
  bptest(z2lm1)
 ```
 
-Miejsce na wnioski....
+Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co prowadzi do odrzucenia hipotezy zerowej. W konsekwencji, *możemy stwierdzić, że występuje heteroshedastyczność*.
 
 ### Zbioru 3
 Heteroskedastyczność kwartalnych danych o długu publicznym USA.
@@ -215,17 +302,47 @@ plot(z3lm1$residuals)
  bptest(z3lm1)
 ```
 
-Miejsce na wnioski....
+Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co prowadzi do odrzucenia hipotezy zerowej. W konsekwencji, *możemy stwierdzić, że występuje heteroshedastyczność*.
 
 
 # Test na stacjonarność szergu
 
-## Dla zbioru 1
+## Dla zbioru 1 seria 1
 ```{r}
 urca::ur.kpss(z1ts1) %>% summary() #niestacjonarny
 diff(z1ts1) %>% urca::ur.kpss() %>% summary() # stacjonarny
 ```
+Nasze dane nie był
+## Dla zbioru 1 serii 2
+```{r}
+urca::ur.kpss(z1ts2) %>% summary() #niestacjonarny
+diff(z1ts2) %>% urca::ur.kpss() %>% summary() # stacjonarny
+```
+## Dla zbioru 1 serii 3
+```{r}
+urca::ur.kpss(z1ts3) %>% summary() #niestacjonarny
+diff(z1ts3) %>% urca::ur.kpss() %>% summary() # stacjonarny
+```
+##Dla zbioru 1 serii 4
+```{r}
+urca::ur.kpss(z1ts4) %>% summary() #stacjonarny
+```
+##Dla zbioru 2 serii 1
+```{r}
+urca::ur.kpss(z2ts1) %>% summary() #stacjonarny
+```
+##Dla zbioru 3 serii 1
+```{r}
+urca::ur.kpss(z3ts1) %>% summary() #niestacjonarny
+diff(z3ts1,lag=1) %>% urca::ur.kpss() %>% summary() # niestacjonarny
+residuals(z3lm1) %>% urca::ur.kpss() %>% summary() # niestacjonarny
+log(z3ts1) %>% urca::ur.kpss() %>% summary()# niestacjonarny
+```
+W szeregach z1ts1, z1ts2, z1ts3 mieliśmy doczynienia z szeregami niestacjonarnymi, które udało nam się sprowadzić do postaci stacjonarnej, szergi z1ts4, z2ts1 są stacjonarne, natomiast z3ts1 okazał się być niestacjonarny i nie można go sprowadzić do postaci stacjonarnej w prosty sposób.
+
 # Tworzenie modelu
+
+## Zbiór 1 seria 1
 Bazując na naszych wcześniejszych danych musimy teraz dobrać odpowiednie parametry naszego modelu. Jako iż będziemy korzystać z modelu Arima potrzebujemy wartośći parametrów p,d,q.
 ```{r}
 plot(z1ts1) #roboczo
@@ -257,11 +374,121 @@ print("Wersja 6")
 z1tst1_best_model <- Arima(y=z1ts1,lambda = "auto",seasonal = c(0,1,0))
 z1tst1_best_model
 ```
-Z pośród stoworznych modeli wybraliśmy najlepszy, teraz spróbujemy stowrzyć model AutoArima i spróbujemy go porównać z obecnie najlepszym
+Z pośród stworznych modeli wybraliśmy najlepszy, teraz spróbujemy stowrzyć model AutoArima i spróbujemy go porównać z obecnie najlepszym
 ```{r}
 auto.arima(z1ts1,d=1,max.p = 5,max.q =5,max.d = 5,seasonal = TRUE)
 ```
-Podsumowując nasz wcześniejszy model jest lepszy :)
+Podsumowując nasz wcześniejszy model jest najlepszy.
+
+Teraz tworząc następne modele postępujemy analogicznie jak powyżej
+
+## Zbiór 1 seria 2
+
+Szacujemy nasze parametry p i q
+```{r}
+acf(diff(z1ts2)) # 0 lub 1
+pacf(diff(z1ts2)) # bardziej 0
+```
+
+Tworzymy nasze modele i ja porównujemy
+```{r}
+print("Wersja 1")
+plot(z1ts2)
+Arima(y=z1ts2, order = c(0,1,0),lambda = NULL)
+print("Wersja 2")
+Arima(y=z1ts2,lambda = NULL,seasonal = c(0,1,1))
+print("Wersja 3")
+Arima(y=z1ts2, seasonal = c(0,1,1),lambda = 'auto')
+print("Wersja 4")
+z1ts2_best_model<-Arima(y=z1ts2, seasonal = c(0,1,1),lambda = 'auto')
+```
+
+## Zbiór 1 seria 3
+
+Szacujemy nasze parametry p i q
+```{r}
+acf(diff(z1ts3)) # 0 lub 1
+pacf(diff(z1ts3)) # 0 lub 1
+```
+
+Tworzymy nasze modele i ja porównujemy
+```{r}
+print("Wersja 1")
+plot(z1ts3)
+Arima(y=z1ts3, order = c(0,1,1),lambda = NULL)
+print("Wersja 2")
+Arima(y=z1ts3,lambda = NULL,seasonal = c(0,1,0))
+print("Wersja 3")
+Arima(y=z1ts3, order = c(0,1,1),lambda = 'auto')
+print("Wersja 4")
+auto.arima(z1ts3)
+z1ts3_best_model<-auto.arima(z1ts3)
+```
+
+## Zbiór 1 seria 4
+
+Szacujemy nasze parametry p i q
+```{r}
+acf(z1ts4) # 0 lub 2
+pacf(z1ts4) # 1
+```
+
+Tworzymy nasze modele i ja porównujemy
+```{r}
+print("Wersja 1")
+plot(z1ts3)
+Arima(y=z1ts4, order = c(0,0,2),lambda = NULL)
+print("Wersja 2")
+Arima(y=z1ts4,lambda = NULL,seasonal = c(0,0,2))
+print("Wersja 3")
+auto.arima(z1ts4)
+z1ts4_best_model<-auto.arima(z1ts4,stationary = TRUE,seasonal = FALSE)
+z1ts4_best_model2<-Arima(y=z1ts4,lambda = NULL,seasonal = c(0,0,2))
+```
+
+## Zbiór 2
+
+Szacujemy nasze parametry p i q
+```{r}
+acf(diff(z2ts1)) # 0
+pacf(diff(z2ts1)) # 0
+```
+
+Tworzymy nasze modele i ja porównujemy
+```{r}
+print("Wersja 1")
+plot(z2ts1)
+Arima(y=z2ts1, order = c(6,1,6),lambda = NULL)
+print("Wersja 2")
+Arima(y=z2ts1,lambda = NULL,seasonal = c(0,0,0))
+print("Wersja 3")
+z2ts1_best_model<-auto.arima(z2ts1)
+z2ts1_best_model
+```
+
+## Zbiór 3
+
+Szacujemy nasze parametry p i q
+```{r}
+acf(diff(z3ts1)) # 1 lub 2
+pacf(diff(z3ts1)) # 1 lub 2
+```
+
+Tworzymy nasze modele i ja porównujemy
+```{r}
+print("Wersja 1")
+plot(z3ts1)
+Arima(y=z3ts1, order = c(4,3,4),lambda = NULL) #6244
+print("Wersja 2")
+Arima(y=z3ts1,lambda = NULL,seasonal = c(1,3,1))
+print("Wersja 3")
+auto.arima(z3ts1) #6277
+z3ts1_best_model<-auto.arima(z3ts1)
+```
+
+
+
+
 # Predykcja danych
 Teraz mając nasze modele możemy dokonać predykcji
 ## Zbiór 1
@@ -277,9 +504,106 @@ autoplot(z1ts1, series="Original Data") +
   theme_minimal() +
   scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
 ```
-# Dekomozycja szeregu
+### Predykcja ilości sprzedaży produktów
+```{r}
+forecast_valuesz12 <-forecast(z1ts2_best_model,h=24)
+autoplot(z1ts2, series="Original Data") +
+  autolayer(forecast_valuesz12, series="Forecast", PI=FALSE) +
+  ggtitle("Time Series and ARIMA Forecast") +
+  xlab("Time") +
+  ylab("Value") +
+  theme_minimal() +
+  scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
+```
+### Predykcja średnigo kosztu produkcji
+```{r}
+forecast_valuesz13 <-forecast(z1ts3_best_model,h=24)
+autoplot(z1ts3, series="Original Data") +
+  autolayer(forecast_valuesz13, series="Forecast", PI=FALSE) +
+  ggtitle("Time Series and ARIMA Forecast") +
+  xlab("Time") +
+  ylab("Value") +
+  theme_minimal() +
+  scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
+```
+### Predykcja rocznych płac regionów w wersji modelu autoarima 
+```{r}
+forecast_valuesz14 <-forecast(z1ts4_best_model,h=24)
+autoplot(z1ts4, series="Original Data") +
+  autolayer(forecast_valuesz14, series="Forecast", PI=FALSE) +
+  ggtitle("Time Series and ARIMA Forecast") +
+  xlab("Time") +
+  ylab("Value") +
+  theme_minimal() +
+  scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
+```
+### Predykcja rocznych płac regionów w wersji modelu arima -  nieznaczna różnica AICc
+```{r}
+
+forecast_valuesz142 <-forecast(z1ts4_best_model2,h=24)
+autoplot(z1ts4, series="Original Data") +
+  autolayer(forecast_valuesz142, series="Forecast", PI=FALSE) +
+  ggtitle("Time Series and ARIMA Forecast") +
+  xlab("Time") +
+  ylab("Value") +
+  theme_minimal() +
+  scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
+```
+## Zbiór 2
+### Predykcja dziennych temperatur
+```{r}
+
+forecast_valuesz21 <-forecast(z2ts1_best_model,h=200)
+autoplot(z2ts1, series="Original Data") +
+  autolayer(forecast_valuesz21, series="Forecast", PI=FALSE) +
+  ggtitle("Time Series and ARIMA Forecast") +
+  xlab("Time") +
+  ylab("Value") +
+  theme_minimal() +
+  scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
+```
+## Zbiór 3
+### Predykcja kwartalna długu
+```{r}
+
+forecast_valuesz31 <-forecast(z3ts1_best_model,h=100)
+autoplot(z3ts1, series="Original Data") +
+  autolayer(forecast_valuesz31, series="Forecast", PI=FALSE) +
+  ggtitle("Time Series and ARIMA Forecast") +
+  xlab("Time") +
+  ylab("Value") +
+  theme_minimal() +
+  scale_colour_manual(values=c("Original Data"="blue", "Forecast"="red"))
+```
+# Dekomozycje szeregu
+PODODAWAĆ OPISY
+## Szereg z1ts1
 ```{r}
 decomposedz11 <- decompose(z1ts1)
 plot(decomposedz11)
 ```
-Na podstawie powyższych obserwacji możemy stwierdzić, że szereg ma widoczny trend, jest sezonowy oraz występują odchylenia losowe.
+## Szereg z1ts2
+```{r}
+decomposedz12 <- decompose(z1ts2)
+plot(decomposedz12)
+```
+# Szereg z1ts3
+```{r}
+decomposedz13 <- decompose(z1ts3)
+plot(decomposedz13)
+```
+# Szereg z1ts4
+```{r}
+decomposedz14 <- decompose(z1ts4)
+plot(decomposedz14)
+```
+# Szereg z2ts1
+```{r}
+decomposedz21 <- decompose(z2ts1)
+plot(decomposedz21)
+```
+# Szereg z3ts1
+```{r}
+decomposedz31 <- decompose(z3ts1)
+plot(decomposedz31)
+```
