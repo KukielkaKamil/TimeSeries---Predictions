@@ -1,10 +1,10 @@
 ---
-title: "Analiza danych - Projekt v.0.1"
+title: "Prognozowanie i symulacje - Projekt"
 author: "Kamil Kukiełka, Michał Zakielarz, Klaudia Kopeć"
 date: "2024-06-20"
 output:
-  html_document: default
   pdf_document: default
+  html_document: default
 ---
 ```{r,echo=FALSE,message=FALSE,warning=FALSE}
 library(forecast)
@@ -70,7 +70,7 @@ colnames(z2df1) <- c("Data","Temperatura")
 head(z2df1, n=12)
 ```
 
-### Zbiór 3
+## Zbiór 3
 Zawiera kwartalne dane o długu publicznym USA (podany w milionach USD).
 ```{r, echo=FALSE}
 z3df1 <- data.frame(raw_data3$date,raw_data3$value)
@@ -91,32 +91,38 @@ z3ts1 <- ts(z3df1$Dług, start = c(1966,1), frequency = 4)
 
 Dysponując danymi w tej formie, możemy teraz wygenerować wykresy, aby zwizualizować ich przebieg i charakterystykę.
 
-#### Zbiór 1 zestaw 1
+## Zbiór 1 zestaw 1
+
 ```{r}
 plot(z1ts1)
 ```
 
-#### Zbiór 1 zestaw 2
+## Zbiór 1 zestaw 2
+
 ```{r}
 plot(z1ts2)
 ```
 
-#### Zbiór 1 zestaw 3
+## Zbiór 1 zestaw 3
+
 ```{r}
 plot(z1ts3)
 ```
 
-#### Zbiór 1 zestaw 4
+## Zbiór 1 zestaw 4
+
 ```{r}
 plot(z1ts4)
 ```
 
-#### Zbiór 2
+## Zbiór 2
+
 ```{r}
 plot(z2ts1)
 ```
 
-#### Zbiór 3
+## Zbiór 3
+
 ```{r}
 plot(z3ts1)
 ```
@@ -264,7 +270,7 @@ bptest(z1lm1)
 
 Wykonując powyższy test wynika, że wartość p jest mniejsze niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, *nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności*.
 
-## Dla zestawu 2
+### Dla zestawu 2
 Heteroskedastyczność ilości sprzedarzy w firmie.
 ```{r}
 plot(z1lm2$residuals)
@@ -273,7 +279,7 @@ plot(z1lm2$residuals)
 
 Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, *nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności.*
 
-## Dla zestawu 3
+### Dla zestawu 3
 Heteroskedastyczność średniego kosztu produkcji w firmie.
 ```{r}
 df=data.frame(time=1:length(z1ts3),z1ts3)
@@ -284,7 +290,7 @@ plot(z1lm3$residuals)
 
 Wykonując powyższy test wynika, że wartość p jest mniejsze niż 0,05, co prowadzi do nieodrzucenia hipotezy zerowej. W konsekwencji, *nie posiadamy wystarczających dowodów na występowanie heteroskedastyczności*.
 
-## Dla zestawu 4
+### Dla zestawu 4
 Heteroskedastyczność informacji o średniej liczbie pracowników w regionie.
 ```{r}
 df=data.frame(time=1:length(z1ts4),z1ts4)
@@ -295,7 +301,7 @@ plot(z1lm4$residuals)
 
 Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co prowadzi do odrzucenia hipotezy zerowej. W konsekwencji, *możemy stwierdzić, że występuje heteroshedastyczność*.
 
-### Zbioru 2
+## Zbioru 2
 Heteroskedastyczność średniej dziennej temperatury w Mumbaiu.
 ```{r}
 df=data.frame(time=1:length(z2ts1),z2ts1)
@@ -306,7 +312,7 @@ plot(z2lm1$residuals)
 
 Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co prowadzi do odrzucenia hipotezy zerowej. W konsekwencji, *możemy stwierdzić, że występuje heteroshedastyczność*.
 
-### Zbioru 3
+## Zbioru 3
 Heteroskedastyczność kwartalnych danych o długu publicznym USA.
 ```{r}
 df=data.frame(time=1:length(z3ts1),z3ts1)
@@ -320,22 +326,22 @@ Wykonując powyższy test wynika, że wartość p jest większa niż 0,05, co pr
 
 # Test na stacjonarność szergu
 
-### Dla zbioru 1 seria 1
+## Dla zbioru 1 seria 1
 ```{r}
 urca::ur.kpss(z1ts1) %>% summary() # niestacjonarny
 diff(z1ts1) %>% urca::ur.kpss() %>% summary() # stacjonarny
 ```
-### Dla zbioru 1 serii 2
+## Dla zbioru 1 serii 2
 ```{r}
 urca::ur.kpss(z1ts2) %>% summary() # niestacjonarny
 diff(z1ts2) %>% urca::ur.kpss() %>% summary() # stacjonarny
 ```
-### Dla zbioru 1 serii 3
+## Dla zbioru 1 serii 3
 ```{r}
 urca::ur.kpss(z1ts3) %>% summary() # niestacjonarny
 diff(z1ts3) %>% urca::ur.kpss() %>% summary() # stacjonarny
 ```
-### Dla zbioru 1 serii 4
+## Dla zbioru 1 serii 4
 ```{r}
 urca::ur.kpss(z1ts4) %>% summary() # stacjonarny
 ```
@@ -355,11 +361,8 @@ W szeregach z1ts1, z1ts2, z1ts3 mieliśmy doczynienia z szeregami niestacjonarny
 
 # Tworzenie modelu
 
-### Zbiór 1 seria 1
+## Zbiór 1 seria 1
 Bazując na naszych wcześniejszych danych, musimy teraz dobrać odpowiednie parametry naszego modelu. Ponieważ zamierzamy korzystać z modelu ARIMA, potrzebujemy wartości parametrów p,d,q.
-```{r}
-plot(z1ts1) #roboczo
-```
 
 Aby wyznaczyć parametr p, analizujemy nasze korelogramy.
 ```{r}
@@ -375,18 +378,12 @@ pacf(diff(z1ts1,lag = 12))
 
 Na podstawie powyższych wykresów, mając orientację, jakie wartości mogą być odpowiednie, testujemy kilka wariantów modelu.
 ```{r}
-print("Wersja 1")
-Arima(y=z1ts1, order = c(3,1,3),lambda = NULL)
-print("Wersja 2")
-Arima(y=z1ts1,lambda = NULL,seasonal = c(3,1,3))
-print("Wersja 3")
-Arima(y=z1ts1, order = c(0,1,0),lambda = NULL)
-print("Wersja 4")
-test <- Arima(y=z1ts1,lambda = NULL,seasonal = c(1,1,1))
-print("Wersja 5")
-Arima(y=z1ts1, order = c(0,1,0),lambda = "auto")
-print("Wersja 6")
-z1tst1_best_model <- Arima(y=z1ts1,lambda = "auto",seasonal = c(0,1,0))
+Arima(y=z1ts1, order = c(3,1,3),lambda = NULL)#Wersja 1
+Arima(y=z1ts1,lambda = NULL,seasonal = c(3,1,3))#Wersja 2
+Arima(y=z1ts1, order = c(0,1,0),lambda = NULL)#Wersja 3
+test <- Arima(y=z1ts1,lambda = NULL,seasonal = c(1,1,1))#Wersja 4
+Arima(y=z1ts1, order = c(0,1,0),lambda = "auto")#Wersja 5
+z1tst1_best_model <- Arima(y=z1ts1,lambda = "auto",seasonal = c(0,1,0))#Wersja 6
 z1tst1_best_model
 ```
 
@@ -399,7 +396,7 @@ Podsumowując, nasz wcześniejszy model okazał się najlepszy.
 
 Teraz, tworząc kolejne modele, postępujemy analogicznie jak powyżej.
 
-### Zbiór 1 seria 2
+## Zbiór 1 seria 2
 
 Szacujemy nasze parametry p i q.
 ```{r}
@@ -409,18 +406,14 @@ pacf(diff(z1ts2)) # bardziej 0
 
 Tworzymy nasze modele i je porównujemy.
 ```{r}
-print("Wersja 1")
-plot(z1ts2)
-Arima(y=z1ts2, order = c(0,1,0),lambda = NULL)
-print("Wersja 2")
-Arima(y=z1ts2,lambda = NULL,seasonal = c(0,1,1))
-print("Wersja 3")
-Arima(y=z1ts2, seasonal = c(0,1,1),lambda = 'auto')
-print("Wersja 4")
-z1ts2_best_model<-Arima(y=z1ts2, seasonal = c(0,1,1),lambda = 'auto')
+Arima(y=z1ts2, order = c(0,1,0),lambda = NULL)#wersja 1
+Arima(y=z1ts2,lambda = NULL,seasonal = c(0,1,1))#wersja 2
+Arima(y=z1ts2, seasonal = c(0,1,1),lambda = 'auto')#wersja 3
+z1ts2_best_model<-Arima(y=z1ts2, seasonal = c(0,1,1),lambda = 'auto')#wersja 4
+z1ts2_best_model
 ```
 
-### Zbiór 1 seria 3
+## Zbiór 1 seria 3
 
 Szacujemy nasze parametry p i q.
 ```{r}
@@ -430,19 +423,14 @@ pacf(diff(z1ts3)) # 0 lub 1
 
 Tworzymy nasze modele i je porównujemy.
 ```{r}
-print("Wersja 1")
-plot(z1ts3)
-Arima(y=z1ts3, order = c(0,1,1),lambda = NULL)
-print("Wersja 2")
-Arima(y=z1ts3,lambda = NULL,seasonal = c(0,1,0))
-print("Wersja 3")
-Arima(y=z1ts3, order = c(0,1,1),lambda = 'auto')
-print("Wersja 4")
-auto.arima(z1ts3)
-z1ts3_best_model<-auto.arima(z1ts3)
+Arima(y=z1ts3, order = c(0,1,1),lambda = NULL)#Wersja 1
+Arima(y=z1ts3,lambda = NULL,seasonal = c(0,1,0))#Wersja 2
+Arima(y=z1ts3, order = c(0,1,1),lambda = 'auto')#Wersja 3
+z1ts3_best_model<-auto.arima(z1ts3)#Wersja 4
+z1ts3_best_model
 ```
 
-### Zbiór 1 seria 4
+## Zbiór 1 seria 4
 
 Szacujemy nasze parametry p i q.
 ```{r}
@@ -452,15 +440,11 @@ pacf(z1ts4) # 1
 
 Tworzymy nasze modele i je porównujemy.
 ```{r}
-print("Wersja 1")
-plot(z1ts3)
-Arima(y=z1ts4, order = c(0,0,2),lambda = NULL)
-print("Wersja 2")
-Arima(y=z1ts4,lambda = NULL,seasonal = c(0,0,2))
-print("Wersja 3")
-auto.arima(z1ts4)
-z1ts4_best_model<-auto.arima(z1ts4,stationary = TRUE,seasonal = FALSE)
-z1ts4_best_model2<-Arima(y=z1ts4,lambda = NULL,seasonal = c(0,0,2))
+Arima(y=z1ts4, order = c(0,0,2),lambda = NULL)#Wersja 1
+Arima(y=z1ts4,lambda = NULL,seasonal = c(0,0,2))#Wersja 2
+auto.arima(z1ts4)#Wersja 3
+z1ts4_best_model<-auto.arima(z1ts4,stationary = TRUE,seasonal = FALSE)#Wersja 4
+z1ts4_best_model2<-Arima(y=z1ts4,lambda = NULL,seasonal = c(0,0,2))#Wersja 5
 ```
 
 ## Zbiór 2
@@ -473,13 +457,9 @@ pacf(diff(z2ts1)) # 0
 
 Tworzymy nasze modele i je porównujemy.
 ```{r}
-print("Wersja 1")
-plot(z2ts1)
-Arima(y=z2ts1, order = c(6,1,6),lambda = NULL)
-print("Wersja 2")
-Arima(y=z2ts1,lambda = NULL,seasonal = c(0,0,0))
-print("Wersja 3")
-z2ts1_best_model<-auto.arima(z2ts1)
+Arima(y=z2ts1, order = c(6,1,6),lambda = NULL)#Wersja 1
+Arima(y=z2ts1,lambda = NULL,seasonal = c(0,0,0))#Wersja 2
+z2ts1_best_model<-auto.arima(z2ts1)#Wersja 3
 z2ts1_best_model
 ```
 
@@ -493,14 +473,10 @@ pacf(diff(z3ts1)) # 1 lub 2
 
 Tworzymy nasze modele i je porównujemy.
 ```{r}
-print("Wersja 1")
-plot(z3ts1)
-Arima(y=z3ts1, order = c(4,3,4),lambda = NULL) #6244
-print("Wersja 2")
-Arima(y=z3ts1,lambda = NULL,seasonal = c(1,3,1))
-print("Wersja 3")
-auto.arima(z3ts1) #6277
-z3ts1_best_model<-auto.arima(z3ts1)
+Arima(y=z3ts1, order = c(4,3,4),lambda = NULL) #Wersja 1
+Arima(y=z3ts1,lambda = NULL,seasonal = c(1,3,1))#Wersja 2
+z3ts1_best_model<-auto.arima(z3ts1) #Wersja 3
+z3ts1_best_model
 ```
 
 
@@ -514,7 +490,7 @@ Dla naszego zbioru danych spróbujemy przeprowadzić predykcje na następny rok.
 ```{r}
 forecast_valuesz11 <-forecast(z1tst1_best_model,h=24)
 autoplot(z1ts1, series="Original Data") +
-  autolayer(forecast_valuesz11, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz11, series="Forecast", PI=TRUE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
@@ -526,7 +502,7 @@ autoplot(z1ts1, series="Original Data") +
 ```{r}
 forecast_valuesz12 <-forecast(z1ts2_best_model,h=24)
 autoplot(z1ts2, series="Original Data") +
-  autolayer(forecast_valuesz12, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz12, series="Forecast", PI=TRUE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
@@ -538,7 +514,7 @@ autoplot(z1ts2, series="Original Data") +
 ```{r}
 forecast_valuesz13 <-forecast(z1ts3_best_model,h=24)
 autoplot(z1ts3, series="Original Data") +
-  autolayer(forecast_valuesz13, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz13, series="Forecast", PI=TRUE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
@@ -550,7 +526,7 @@ autoplot(z1ts3, series="Original Data") +
 ```{r}
 forecast_valuesz14 <-forecast(z1ts4_best_model,h=24)
 autoplot(z1ts4, series="Original Data") +
-  autolayer(forecast_valuesz14, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz14, series="Forecast", PI=TRUE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
@@ -562,7 +538,7 @@ autoplot(z1ts4, series="Original Data") +
 ```{r}
 forecast_valuesz142 <-forecast(z1ts4_best_model2,h=24)
 autoplot(z1ts4, series="Original Data") +
-  autolayer(forecast_valuesz142, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz142, series="Forecast", PI=TRUE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
@@ -575,7 +551,7 @@ autoplot(z1ts4, series="Original Data") +
 ```{r}
 forecast_valuesz21 <-forecast(z2ts1_best_model,h=200)
 autoplot(z2ts1, series="Original Data") +
-  autolayer(forecast_valuesz21, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz21, series="Forecast", PI=TRUE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
@@ -588,7 +564,7 @@ autoplot(z2ts1, series="Original Data") +
 ```{r}
 forecast_valuesz31 <-forecast(z3ts1_best_model,h=100)
 autoplot(z3ts1, series="Original Data") +
-  autolayer(forecast_valuesz31, series="Forecast", PI=FALSE) +
+  autolayer(forecast_valuesz31, series="Forecast", PI=TRUE) +
   ggtitle("Time Series and ARIMA Forecast") +
   xlab("Time") +
   ylab("Value") +
@@ -597,38 +573,54 @@ autoplot(z3ts1, series="Original Data") +
 ```
 
 # Dekomozycje szeregu
+
 ### Szereg z1ts1
+
 ```{r}
 decomposedz11 <- decompose(z1ts1)
 plot(decomposedz11)
 ```
+Patrząc na dekompozycję naszego szeregu mam zauważalny trend oraz sezonowość. Nie mamy doczynienia ze znaczącymi wachaniami losowymi
 
 ### Szereg z1ts2
+
 ```{r}
 decomposedz12 <- decompose(z1ts2)
 plot(decomposedz12)
 ```
+Patrząc na dekompozycję naszego szeregu mam zauważalny trend oraz sezonowość. Nie mamy doczynienia ze znaczącymi wachaniami losowymi.
 
 ### Szereg z1ts3
+
 ```{r}
 decomposedz13 <- decompose(z1ts3)
 plot(decomposedz13)
 ```
+Nie mamy tutaj doczynienia z wyraźnym trendem, występuje tutaj sezonowość, nie występują większe odchylenia losowe.
 
 ### Szereg z1ts4
+
 ```{r}
 decomposedz14 <- decompose(z1ts4)
 plot(decomposedz14)
 ```
+Mamy tutaj do czynienia z szeregiem sezonowym, występują duże odchylenia oraz mamy doczynienia z trendem.
 
 ## Szereg z2ts1
+
 ```{r}
 decomposedz21 <- decompose(z2ts1)
 plot(decomposedz21)
 ```
+Nie mamy tutaj zauważalnego na pierszy rzut oka żadnego trendu. Jest tutaj sezonowość i występują wachania oscylujące wokół zera.
 
 ## Szereg z3ts1
+
 ```{r}
 decomposedz31 <- decompose(z3ts1)
 plot(decomposedz31)
 ```
+Mamy tutaj widoczny trend, sezonowość, oraz odchylenia losowe występujące w okoliczach 2020 roku.
+
+# Podumowanie
+Skutecznie przeprowadziliśmy analzę, tworzenie modelu oraz predykcję dla naszych szeregów czasowych.
